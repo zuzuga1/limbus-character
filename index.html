@@ -9,13 +9,13 @@
 <body>
     <div class="container" id="app">
         <header>
-            <h1>Лист Персонажа Для Лимбуса</h1>
+            <h1>📋 Лист Персонажа Для Лимбуса</h1>
         </header>
 
         <main>
             <!-- ========== ПРОФИЛЬ ========== -->
             <section id="profile">
-                <h2>📋 Профиль</h2>
+                <h2>Профиль</h2>
                 <div class="form-group">
                     <label>Имя: <input type="text" data-field="name" placeholder="Имя персонажа"></label>
                     <label>Игрок: <input type="text" data-field="player" placeholder="Имя игрока"></label>
@@ -24,80 +24,188 @@
                 </div>
             </section>
 
-            <!-- ========== ХАРАКТЕРИСТИКИ ========== -->
+            <!-- ========== ХАРАКТЕРИСТИКИ (СТОЛБИКАМИ) ========== -->
             <section id="attributes">
-                <h2>⚡ Характеристики</h2>
-                
-                <div class="attribute-group">
-                    <h3>Физические</h3>
-                    <label>Сила: <span class="dots" data-field="attributes.physical.strength"></span></label>
-                    <label>Ловкость: <span class="dots" data-field="attributes.physical.dexterity"></span></label>
-                    <label>Выносливость: <span class="dots" data-field="attributes.physical.stamina"></span></label>
-                </div>
-                
-                <div class="attribute-group">
-                    <h3>Социальные</h3>
-                    <label>Общение: <span class="dots" data-field="attributes.social.charisma"></span></label>
-                    <label>Манипуляция: <span class="dots" data-field="attributes.social.manipulation"></span></label>
-                    <label>Привлекательность: <span class="dots" data-field="attributes.social.appearance"></span></label>
-                </div>
-                
-                <div class="attribute-group">
-                    <h3>Ментальные</h3>
-                    <label>Восприятие: <span class="dots" data-field="attributes.mental.perception"></span></label>
-                    <label>Интеллект: <span class="dots" data-field="attributes.mental.intelligence"></span></label>
-                    <label>Смекалка: <span class="dots" data-field="attributes.mental.wits"></span></label>
+                <h2>Характеристики</h2>
+                <div class="attribute-columns">
+                    <!-- Физические -->
+                    <div class="attribute-column">
+                        <h3>Физические</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Сила</span>
+                            <span class="dots" data-field="attributes.physical.strength"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Ловкость</span>
+                            <span class="dots" data-field="attributes.physical.dexterity"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Выносливость</span>
+                            <span class="dots" data-field="attributes.physical.stamina"></span>
+                        </div>
+                    </div>
+
+                    <!-- Социальные -->
+                    <div class="attribute-column">
+                        <h3>Социальные</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Общение</span>
+                            <span class="dots" data-field="attributes.social.charisma"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Манипуляция</span>
+                            <span class="dots" data-field="attributes.social.manipulation"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Привлекательность</span>
+                            <span class="dots" data-field="attributes.social.appearance"></span>
+                        </div>
+                    </div>
+
+                    <!-- Ментальные -->
+                    <div class="attribute-column">
+                        <h3>Ментальные</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Восприятие</span>
+                            <span class="dots" data-field="attributes.mental.perception"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Интеллект</span>
+                            <span class="dots" data-field="attributes.mental.intelligence"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Смекалка</span>
+                            <span class="dots" data-field="attributes.mental.wits"></span>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- ========== СПОСОБНОСТИ ========== -->
             <section id="abilities">
-                <h2>🎯 Способности</h2>
+                <h2>Способности</h2>
                 
-                <!-- ТАЛАНТЫ -->
-                <div class="ability-group">
-                    <h3>Таланты</h3>
-                    <label>Атлетика: <span class="dots" data-field="abilities.talents.athletics"></span></label>
-                    <label>Бдительность: <span class="dots" data-field="abilities.talents.alertness"></span></label>
-                    <label>Драка: <span class="dots" data-field="abilities.talents.brawl"></span></label>
-                    <label>Запугивание: <span class="dots" data-field="abilities.talents.intimidation"></span></label>
-                    <label>Красноречие: <span class="dots" data-field="abilities.talents.expression"></span></label>
-                    <label>Уличное чутьё: <span class="dots" data-field="abilities.talents.streetwise"></span></label>
-                    <label>Хитрость: <span class="dots" data-field="abilities.talents.subterfuge"></span></label>
-                    <label>Шестое чувство: <span class="dots" data-field="abilities.talents.awareness"></span></label>
-                </div>
+                <div class="ability-columns">
+                    <!-- ТАЛАНТЫ -->
+                    <div class="ability-column">
+                        <h3>Таланты</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Атлетика</span>
+                            <span class="dots" data-field="abilities.talents.athletics"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Бдительность</span>
+                            <span class="dots" data-field="abilities.talents.alertness"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Драка</span>
+                            <span class="dots" data-field="abilities.talents.brawl"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Запугивание</span>
+                            <span class="dots" data-field="abilities.talents.intimidation"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Красноречие</span>
+                            <span class="dots" data-field="abilities.talents.expression"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Уличное чутьё</span>
+                            <span class="dots" data-field="abilities.talents.streetwise"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Хитрость</span>
+                            <span class="dots" data-field="abilities.talents.subterfuge"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Шестое чувство</span>
+                            <span class="dots" data-field="abilities.talents.awareness"></span>
+                        </div>
+                    </div>
 
-                <!-- НАВЫКИ -->
-                <div class="ability-group">
-                    <h3>Навыки</h3>
-                    <label>Вождение: <span class="dots" data-field="abilities.skills.driving"></span></label>
-                    <label>Воровство: <span class="dots" data-field="abilities.skills.larceny"></span></label>
-                    <label>Выживание: <span class="dots" data-field="abilities.skills.survival"></span></label>
-                    <label>Ремесло: <span class="dots" data-field="abilities.skills.crafts"></span></label>
-                    <label>Скрытность: <span class="dots" data-field="abilities.skills.stealth"></span></label>
-                    <label>Стрельба: <span class="dots" data-field="abilities.skills.firearms"></span></label>
-                    <label>Фехтование: <span class="dots" data-field="abilities.skills.melee"></span></label>
-                    <label>Этикет: <span class="dots" data-field="abilities.skills.etiquette"></span></label>
-                </div>
+                    <!-- НАВЫКИ -->
+                    <div class="ability-column">
+                        <h3>Навыки</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Вождение</span>
+                            <span class="dots" data-field="abilities.skills.driving"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Воровство</span>
+                            <span class="dots" data-field="abilities.skills.larceny"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Выживание</span>
+                            <span class="dots" data-field="abilities.skills.survival"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Ремесло</span>
+                            <span class="dots" data-field="abilities.skills.crafts"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Скрытность</span>
+                            <span class="dots" data-field="abilities.skills.stealth"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Стрельба</span>
+                            <span class="dots" data-field="abilities.skills.firearms"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Фехтование</span>
+                            <span class="dots" data-field="abilities.skills.melee"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Этикет</span>
+                            <span class="dots" data-field="abilities.skills.etiquette"></span>
+                        </div>
+                    </div>
 
-                <!-- ЗНАНИЯ -->
-                <div class="ability-group">
-                    <h3>Знания</h3>
-                    <label>Расследование: <span class="dots" data-field="abilities.knowledges.investigation"></span></label>
-                    <label>Финансы: <span class="dots" data-field="abilities.knowledges.finance"></span></label>
-                    <label>Электроника: <span class="dots" data-field="abilities.knowledges.electronics"></span></label>
-                    <label>Импланты: <span class="dots" data-field="abilities.knowledges.implants"></span></label>
-                    <label>Сингулярность: <span class="dots" data-field="abilities.knowledges.singularity"></span></label>
-                    <label>Наука: <span class="dots" data-field="abilities.knowledges.science"></span></label>
-                    <label>Химия: <span class="dots" data-field="abilities.knowledges.chemistry"></span></label>
-                    <label>Табу: <span class="dots" data-field="abilities.knowledges.taboo"></span></label>
-                    <label>Оккультизм: <span class="dots" data-field="abilities.knowledges.occult"></span></label>
+                    <!-- ЗНАНИЯ -->
+                    <div class="ability-column">
+                        <h3>Знания</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Расследование</span>
+                            <span class="dots" data-field="abilities.knowledges.investigation"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Финансы</span>
+                            <span class="dots" data-field="abilities.knowledges.finance"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Электроника</span>
+                            <span class="dots" data-field="abilities.knowledges.electronics"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Импланты</span>
+                            <span class="dots" data-field="abilities.knowledges.implants"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Сингулярность</span>
+                            <span class="dots" data-field="abilities.knowledges.singularity"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Наука</span>
+                            <span class="dots" data-field="abilities.knowledges.science"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Химия</span>
+                            <span class="dots" data-field="abilities.knowledges.chemistry"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Табу</span>
+                            <span class="dots" data-field="abilities.knowledges.taboo"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Оккультизм</span>
+                            <span class="dots" data-field="abilities.knowledges.occult"></span>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- ========== ПРЕИМУЩЕСТВА ========== -->
             <section id="advantages">
-                <h2>💎 Преимущества</h2>
+                <h2>Преимущества</h2>
                 
                 <div>
                     <h3>Дисциплины</h3>
@@ -107,53 +215,76 @@
                 
                 <div>
                     <h3>Добродетели</h3>
-                    <label>Совесть/Решимость: <span class="dots" data-field="virtues.conscience"></span></label>
-                    <label>Самоконтроль/Инстинкты: <span class="dots" data-field="virtues.selfControl"></span></label>
-                    <label>Смелость: <span class="dots" data-field="virtues.courage"></span></label>
+                    <div class="stat-row">
+                        <span class="stat-label">Совесть/Решимость</span>
+                        <span class="dots" data-field="virtues.conscience"></span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Самоконтроль/Инстинкты</span>
+                        <span class="dots" data-field="virtues.selfControl"></span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Смелость</span>
+                        <span class="dots" data-field="virtues.courage"></span>
+                    </div>
                 </div>
                 
                 <div>
                     <h3>Человечность</h3>
-                    <label>Человечность: <span class="dots" data-field="humanity" data-max="10"></span></label>
+                    <div class="stat-row">
+                        <span class="stat-label">Человечность</span>
+                        <span class="dots" data-field="humanity" data-max="10"></span>
+                    </div>
                 </div>
                 
                 <div>
                     <h3>Воля</h3>
-                    <label>Текущая: <span class="dots" data-field="willpower.current" data-max="10"></span></label>
-                    <label>Постоянная: <span class="dots" data-field="willpower.permanent" data-max="10"></span></label>
+                    <div class="stat-row">
+                        <span class="stat-label">Текущая</span>
+                        <span class="dots" data-field="willpower.current" data-max="10"></span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Постоянная</span>
+                        <span class="dots" data-field="willpower.permanent" data-max="10"></span>
+                    </div>
                 </div>
                 
                 <div>
                     <h3>Здоровье</h3>
-                    <label><input type="checkbox" data-field="health.bruised"> Помят</label>
-                    <label><input type="checkbox" data-field="health.hurt"> Легко ранен (−1)</label>
-                    <label><input type="checkbox" data-field="health.injured"> Ранен (−1)</label>
-                    <label><input type="checkbox" data-field="health.wounded"> Серьёзно ранен (−2)</label>
-                    <label><input type="checkbox" data-field="health.mauled"> Тяжело ранен (−2)</label>
-                    <label><input type="checkbox" data-field="health.crippled"> Едва жив (−5)</label>
-                    <label><input type="checkbox" data-field="health.incapacitated"> При смерти</label>
+                    <div class="health-grid">
+                        <label><input type="checkbox" data-field="health.bruised"> Помят</label>
+                        <label><input type="checkbox" data-field="health.hurt"> Легко ранен (−1)</label>
+                        <label><input type="checkbox" data-field="health.injured"> Ранен (−1)</label>
+                        <label><input type="checkbox" data-field="health.wounded"> Серьёзно ранен (−2)</label>
+                        <label><input type="checkbox" data-field="health.mauled"> Тяжело ранен (−2)</label>
+                        <label><input type="checkbox" data-field="health.crippled"> Едва жив (−5)</label>
+                        <label><input type="checkbox" data-field="health.incapacitated"> При смерти</label>
+                    </div>
                 </div>
                 
                 <div>
                     <h3>Опыт</h3>
-                    <label>Очки опыта: <input type="number" min="0" data-field="experience"></label>
+                    <div class="stat-row">
+                        <span class="stat-label">Очки опыта</span>
+                        <input type="number" min="0" data-field="experience" style="max-width:70px;">
+                    </div>
                 </div>
             </section>
 
             <!-- ========== ДРУГИЕ ПАРАМЕТРЫ ========== -->
             <section id="other">
-                <h2>📝 Другие параметры</h2>
+                <h2>Другие параметры</h2>
                 <div>
                     <h3>История</h3>
-                    <textarea data-field="history" rows="4" style="width: 100%; max-width: 100%;"></textarea>
+                    <textarea data-field="history" rows="4"></textarea>
                 </div>
                 <div>
                     <h3>Цели</h3>
-                    <textarea data-field="goals" rows="4" style="width: 100%; max-width: 100%;"></textarea>
+                    <textarea data-field="goals" rows="4"></textarea>
                 </div>
                 <div>
                     <h3>Заметки</h3>
-                    <textarea data-field="notes" rows="4" style="width: 100%; max-width: 100%;"></textarea>
+                    <textarea data-field="notes" rows="4"></textarea>
                 </div>
             </section>
         </main>
