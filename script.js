@@ -1,10 +1,16 @@
-// script.js
+// script.js - Survival Company
 
 const defaultCharacter = {
     name: '',
-    player: '',
     age: '',
     gender: '',
+    height: '',
+    weight: '',
+    rank: '9-й',
+    class: '',
+    subclass: '',
+    multiclass: '',
+    photo: '',
     attributes: {
         physical: { strength: 0, dexterity: 0, stamina: 0 },
         social: { charisma: 0, manipulation: 0, appearance: 0 },
@@ -48,21 +54,40 @@ const defaultCharacter = {
     humanity: 0,
     willpower: { current: 0, permanent: 0 },
     health: {
-        bruised: false,
-        hurt: false,
-        injured: false,
-        wounded: false,
-        mauled: false,
-        crippled: false,
-        incapacitated: false
+        bruised: 0,
+        hurt: 0,
+        injured: 0,
+        wounded: 0,
+        mauled: 0,
+        crippled: 0,
+        incapacitated: 0
     },
     experience: 0,
     history: '',
     goals: '',
+    equipment: '',
     notes: ''
 };
 
 let character = { ...defaultCharacter };
+
+// ===== ВСЕ ПОДКЛАССЫ ДЛЯ МУЛЬТИКЛАССА =====
+const allSubclasses = [
+    'Фехтовальщик', 'Авангард', 'Убийца',
+    'Комбинатор', 'Снайпер', 'Тамб', 'Метатель',
+    'Мастер', 'Имплантер', 'Миддл',
+    'Мутант', 'Вампир', 'Цельнометаллический',
+    'Атакующая', 'Защищающая', 'Поддерживающая'
+];
+
+// ===== ДАННЫЕ ДЛЯ КЛАССОВ =====
+const classData = {
+    'Мечник': ['Фехтовальщик', 'Авангард', 'Убийца'],
+    'Стрелок': ['Комбинатор', 'Снайпер', 'Тамб', 'Метатель'],
+    'Боец': ['Мастер', 'Имплантер', 'Миддл'],
+    'Исключительный': ['Мутант', 'Вампир', 'Цельнометаллический'],
+    'Владелец Сингулярности': ['Атакующая', 'Защищающая', 'Поддерживающая']
+};
 
 // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 function getValueByPath(obj, path) {
@@ -106,32 +131,83 @@ function mergeDeep(target, source) {
     return target;
 }
 
-// ===== ОТРИСОВКА ТОЧЕК =====
+// ===== ОТРИСОВКА ТОЧЕК (С АВТОЗАПОЛНЕНИЕМ ДЛЯ ЗДОРОВЬЯ) =====
 function renderDots(element, value, max = 5) {
     element.innerHTML = '';
+    const field = element.dataset.field;
+    const isHealth = field && field.startsWith('health.');
+    
     for (let i = 0; i < max; i++) {
         const dot = document.createElement('span');
         dot.className = 'dot' + (i < value ? ' filled' : '');
         dot.dataset.index = i;
         dot.addEventListener('click', function(e) {
             e.stopPropagation();
-            const field = element.dataset.field;
             const maxVal = parseInt(element.dataset.max) || 5;
             let newValue = i + 1;
             if (value === newValue) {
                 newValue = i;
             }
-            setValueByPath(character, field, newValue);
-            element.dataset.value = newValue;
-            renderDots(element, newValue, maxVal);
+            
+            // Для здоровья: автоматическое заполнение предыдущих точек
+            if (isHealth) {
+                // Если ставим точку (увеличиваем) - заполняем все до неё
+                // Если убираем (уменьшаем) - убираем все от неё
+                const currentVal = getValueByPath(character, field);
+                if (newValue > currentVal) {
+                    // Заполняем все точки до нового значения
+                    setValueByPath(character, field, newValue);
+                } else {
+                    // Убираем все точки от нового значения
+                    setValueByPath(character, field, newValue);
+                }
+            } else {
+                setValueByPath(character, field, newValue);
+            }
+            
+            const finalValue = getValueByPath(character, field);
+            element.dataset.value = finalValue;
+            renderDots(element, finalValue, maxVal);
             saveUIToCharacter();
         });
         element.appendChild(dot);
     }
 }
 
+// ===== ОБНОВЛЕНИЕ ПОДКЛАССОВ =====
+function updateSubclasses(selectedClass) {
+    const subclassSelect = document.getElementById('subclassSelect');
+    
+    subclassSelect.innerHTML = '<option value="">— Сначала выберите класс —</option>';
+    
+    if (selectedClass && classData[selectedClass]) {
+        const subclasses = classData[selectedClass];
+        subclasses.forEach(sub => {
+            const option = document.createElement('option');
+            option.value = sub;
+            option.textContent = sub;
+            subclassSelect.appendChild(option);
+        });
+    }
+}
+
+// ===== ОБНОВЛЕНИЕ МУЛЬТИКЛАССА =====
+function updateMulticlass() {
+    const multiclassSelect = document.getElementById('multiclassSelect');
+    
+    multiclassSelect.innerHTML = '<option value="">— Без мультикласса —</option>';
+    
+    allSubclasses.forEach(sub => {
+        const option = document.createElement('option');
+        option.value = sub;
+        option.textContent = sub;
+        multiclassSelect.appendChild(option);
+    });
+}
+
 // ===== ЗАГРУЗКА В UI =====
 function loadCharacterToUI() {
+    // Точки
     document.querySelectorAll('.dots').forEach(element => {
         const field = element.getAttribute('data-field');
         const max = parseInt(element.dataset.max) || 5;
@@ -141,6 +217,7 @@ function loadCharacterToUI() {
         renderDots(element, val, max);
     });
 
+    // Поля ввода
     document.querySelectorAll('input[type="text"], input[type="number"], select, textarea').forEach(element => {
         const field = element.getAttribute('data-field');
         if (!field) return;
@@ -150,37 +227,86 @@ function loadCharacterToUI() {
         }
     });
 
-    document.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        const field = element.getAttribute('data-field');
-        if (!field) return;
-        const value = getValueByPath(character, field);
-        element.checked = value || false;
-    });
+    // Обновляем подклассы если выбран класс
+    const classSelect = document.getElementById('classSelect');
+    if (classSelect && classSelect.value && classData[classSelect.value]) {
+        updateSubclasses(classSelect.value);
+        if (character.subclass) {
+            document.getElementById('subclassSelect').value = character.subclass;
+        }
+    }
+
+    // Всегда обновляем мультикласс со всеми подклассами
+    updateMulticlass();
+    if (character.multiclass) {
+        document.getElementById('multiclassSelect').value = character.multiclass;
+    }
+
+    // Фото
+    if (character.photo) {
+        const placeholder = document.getElementById('photoPlaceholder');
+        if (placeholder) {
+            const img = document.createElement('img');
+            img.src = character.photo;
+            img.alt = 'Фото персонажа';
+            placeholder.innerHTML = '';
+            placeholder.appendChild(img);
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.id = 'photoInput';
+            input.addEventListener('change', handlePhotoUpload);
+            placeholder.appendChild(input);
+        }
+    }
 
     renderDisciplines();
 }
 
 // ===== СОХРАНЕНИЕ ИЗ UI =====
 function saveUIToCharacter() {
+    // Точки
     document.querySelectorAll('.dots').forEach(element => {
         const field = element.getAttribute('data-field');
         const value = parseInt(element.dataset.value) || 0;
         setValueByPath(character, field, value);
     });
 
+    // Поля ввода
     document.querySelectorAll('input[type="text"], input[type="number"], select, textarea').forEach(element => {
         const field = element.getAttribute('data-field');
         if (!field) return;
         setValueByPath(character, field, element.value);
     });
 
-    document.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        const field = element.getAttribute('data-field');
-        if (!field) return;
-        setValueByPath(character, field, element.checked);
-    });
-
     saveDisciplines();
+}
+
+// ===== ФОТО =====
+function handlePhotoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const photoData = event.target.result;
+        character.photo = photoData;
+        const placeholder = document.getElementById('photoPlaceholder');
+        if (placeholder) {
+            placeholder.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = photoData;
+            img.alt = 'Фото персонажа';
+            placeholder.appendChild(img);
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.id = 'photoInput';
+            input.addEventListener('change', handlePhotoUpload);
+            placeholder.appendChild(input);
+        }
+        saveToLocalStorage();
+    };
+    reader.readAsDataURL(file);
 }
 
 // ===== ДИСЦИПЛИНЫ =====
@@ -193,7 +319,7 @@ function renderDisciplines() {
         div.className = 'discipline';
         div.innerHTML = `
             <input type="text" placeholder="Название" value="${disc.name}" data-discipline-name="${index}">
-            <input type="number" min="0" max="5" placeholder="Уровень" value="${disc.level}" data-discipline-level="${index}">
+            <input type="number" min="0" max="5" placeholder="Ур." value="${disc.level}" data-discipline-level="${index}">
             <button data-discipline-remove="${index}">✕</button>
         `;
         container.appendChild(div);
@@ -250,12 +376,12 @@ function addDiscipline() {
 // ===== СОХРАНЕНИЕ В localStorage =====
 function saveToLocalStorage() {
     saveUIToCharacter();
-    localStorage.setItem('limbusCharacter', JSON.stringify(character));
+    localStorage.setItem('survivalCompany', JSON.stringify(character));
     alert('💾 Персонаж сохранен!');
 }
 
 function loadFromLocalStorage() {
-    const saved = localStorage.getItem('limbusCharacter');
+    const saved = localStorage.getItem('survivalCompany');
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
@@ -269,32 +395,63 @@ function loadFromLocalStorage() {
 }
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     loadFromLocalStorage();
 
+    // Класс → обновление подклассов
+    document.getElementById('classSelect')?.addEventListener('change', function() {
+        const selected = this.value;
+        updateSubclasses(selected);
+        if (selected && classData[selected]) {
+            character.class = selected;
+            character.subclass = '';
+        }
+        saveUIToCharacter();
+    });
+
+    // Подкласс
+    document.getElementById('subclassSelect')?.addEventListener('change', function() {
+        character.subclass = this.value;
+        saveUIToCharacter();
+    });
+
+    // Мультикласс
+    document.getElementById('multiclassSelect')?.addEventListener('change', function() {
+        character.multiclass = this.value;
+        saveUIToCharacter();
+    });
+
+    // Кнопка сохранения
     document.getElementById('saveBtn')?.addEventListener('click', saveToLocalStorage);
+    
+    // Кнопка добавления дисциплины
     document.getElementById('addDisciplineBtn')?.addEventListener('click', addDiscipline);
 
-    document.getElementById('exportBtn')?.addEventListener('click', () => {
+    // Загрузка фото
+    document.getElementById('photoInput')?.addEventListener('change', handlePhotoUpload);
+
+    // Экспорт
+    document.getElementById('exportBtn')?.addEventListener('click', function() {
         saveUIToCharacter();
         const dataStr = JSON.stringify(character, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'limbus_character.json';
+        a.download = 'survival_company.json';
         a.click();
         URL.revokeObjectURL(url);
     });
 
-    document.getElementById('importBtn')?.addEventListener('click', () => {
+    // Импорт
+    document.getElementById('importBtn')?.addEventListener('click', function() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
-        input.onchange = (e) => {
+        input.onchange = function(e) {
             const file = e.target.files[0];
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = function(event) {
                 try {
                     const imported = JSON.parse(event.target.result);
                     character = mergeDeep({ ...defaultCharacter }, imported);
@@ -310,9 +467,10 @@ document.addEventListener('DOMContentLoaded', () => {
         input.click();
     });
 
-    document.querySelectorAll('input, select, textarea').forEach(element => {
-        element.addEventListener('input', () => { saveUIToCharacter(); });
-        element.addEventListener('change', () => { saveUIToCharacter(); });
+    // Автосохранение при изменении полей
+    document.querySelectorAll('input, select, textarea').forEach(function(element) {
+        element.addEventListener('input', function() { saveUIToCharacter(); });
+        element.addEventListener('change', function() { saveUIToCharacter(); });
     });
 
     if (character.disciplines.length === 0) {
