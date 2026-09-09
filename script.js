@@ -44,7 +44,6 @@ const defaultCharacter = {
             implants: 0,
             singularity: 0,
             science: 0,
-            chemistry: 0,
             taboo: 0,
             occult: 0
         }
@@ -53,6 +52,7 @@ const defaultCharacter = {
     virtues: { conscience: 0, selfControl: 0, courage: 0 },
     humanity: 0,
     willpower: { current: 0, permanent: 0 },
+    light: { current: 0, permanent: 0 },
     health: {
         bruised: 0,
         hurt: 0,

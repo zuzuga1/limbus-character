@@ -102,7 +102,7 @@ section:hover {
     gap: 10px;
 }
 
-/* ===== ПРОФИЛЬ (БОЛЬШЕ ОТСТУПЫ) ===== */
+/* ===== ПРОФИЛЬ ===== */
 .profile-wrapper {
     display: flex;
     gap: 25px;
@@ -171,7 +171,7 @@ section:hover {
     gap: 8px;
 }
 
-/* ===== ФОРМЫ (БОЛЬШЕ ОТСТУПЫ) ===== */
+/* ===== ФОРМЫ ===== */
 .form-group {
     display: flex;
     flex-wrap: wrap;
@@ -260,7 +260,7 @@ textarea {
     font-weight: 700;
 }
 
-/* ===== ТОЧКИ ===== */
+/* ===== ТОЧКИ (ОБЩИЕ) ===== */
 .dots {
     display: inline-flex;
     gap: 2px;
@@ -297,6 +297,23 @@ textarea {
     background: #dbb95c;
     border-color: #dbb95c;
     box-shadow: 0 0 18px rgba(201, 168, 76, 0.35);
+}
+
+/* ===== ТОЧКИ ДЛЯ СВЕТА (20 ТОЧЕК) ===== */
+.advantage-block .dots[data-max="20"] .dot {
+    width: 11px;
+    height: 11px;
+}
+
+.advantage-block .dots[data-max="20"] {
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+/* ===== ТОЧКИ ДЛЯ ВОЛИ (10 ТОЧЕК) ===== */
+.advantage-block .dots[data-max="10"] .dot {
+    width: 14px;
+    height: 14px;
 }
 
 /* ===== ПРЕИМУЩЕСТВА (СЕТКА) ===== */
@@ -365,7 +382,6 @@ textarea {
     font-weight: 600;
     font-size: 12px;
     padding: 3px 6px;
-    max-width: 100%;
 }
 
 .discipline input[type="number"] {
