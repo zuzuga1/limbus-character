@@ -70,6 +70,7 @@ const defaultCharacter = {
 };
 
 let character = { ...defaultCharacter };
+let isUpdating = false;
 
 // ===== ВСЕ ПОДКЛАССЫ ДЛЯ МУЛЬТИКЛАССА =====
 const allSubclasses = [
@@ -131,7 +132,7 @@ function mergeDeep(target, source) {
     return target;
 }
 
-// ===== ОТРИСОВКА ТОЧЕК (С АВТОЗАПОЛНЕНИЕМ ДЛЯ ЗДОРОВЬЯ) =====
+// ===== ОТРИСОВКА ТОЧЕК =====
 function renderDots(element, value, max = 5) {
     element.innerHTML = '';
     const field = element.dataset.field;
@@ -149,16 +150,11 @@ function renderDots(element, value, max = 5) {
                 newValue = i;
             }
             
-            // Для здоровья: автоматическое заполнение предыдущих точек
             if (isHealth) {
-                // Если ставим точку (увеличиваем) - заполняем все до неё
-                // Если убираем (уменьшаем) - убираем все от неё
                 const currentVal = getValueByPath(character, field);
                 if (newValue > currentVal) {
-                    // Заполняем все точки до нового значения
                     setValueByPath(character, field, newValue);
                 } else {
-                    // Убираем все точки от нового значения
                     setValueByPath(character, field, newValue);
                 }
             } else {
@@ -207,7 +203,6 @@ function updateMulticlass() {
 
 // ===== ЗАГРУЗКА В UI =====
 function loadCharacterToUI() {
-    // Точки
     document.querySelectorAll('.dots').forEach(element => {
         const field = element.getAttribute('data-field');
         const max = parseInt(element.dataset.max) || 5;
@@ -217,7 +212,6 @@ function loadCharacterToUI() {
         renderDots(element, val, max);
     });
 
-    // Поля ввода
     document.querySelectorAll('input[type="text"], input[type="number"], select, textarea').forEach(element => {
         const field = element.getAttribute('data-field');
         if (!field) return;
@@ -227,7 +221,6 @@ function loadCharacterToUI() {
         }
     });
 
-    // Обновляем подклассы если выбран класс
     const classSelect = document.getElementById('classSelect');
     if (classSelect && classSelect.value && classData[classSelect.value]) {
         updateSubclasses(classSelect.value);
@@ -236,13 +229,11 @@ function loadCharacterToUI() {
         }
     }
 
-    // Всегда обновляем мультикласс со всеми подклассами
     updateMulticlass();
     if (character.multiclass) {
         document.getElementById('multiclassSelect').value = character.multiclass;
     }
 
-    // Фото
     if (character.photo) {
         const placeholder = document.getElementById('photoPlaceholder');
         if (placeholder) {
@@ -263,23 +254,49 @@ function loadCharacterToUI() {
     renderDisciplines();
 }
 
-// ===== СОХРАНЕНИЕ ИЗ UI =====
+// ===== СОХРАНЕНИЕ ИЗ UI (ТОЛЬКО НЕ ДИСЦИПЛИНЫ) =====
 function saveUIToCharacter() {
-    // Точки
+    if (isUpdating) return;
+    isUpdating = true;
+    
+    // Сохраняем только точки
     document.querySelectorAll('.dots').forEach(element => {
         const field = element.getAttribute('data-field');
         const value = parseInt(element.dataset.value) || 0;
         setValueByPath(character, field, value);
     });
 
-    // Поля ввода
-    document.querySelectorAll('input[type="text"], input[type="number"], select, textarea').forEach(element => {
+    // Сохраняем поля ввода (кроме дисциплин)
+    document.querySelectorAll('input[type="text"]:not(.disc-name), input[type="number"]:not(.disc-level), select, textarea').forEach(element => {
         const field = element.getAttribute('data-field');
         if (!field) return;
         setValueByPath(character, field, element.value);
     });
+    
+    // Дисциплины сохраняем отдельно через специальную функцию
+    // Но НЕ перезаписываем их из DOM при каждом клике на точки!
+    
+    isUpdating = false;
+}
 
-    saveDisciplines();
+// ===== СОХРАНЕНИЕ ДИСЦИПЛИН ИЗ DOM (ТОЛЬКО ПО НАЖАТИЮ КНОПКИ СОХРАНИТЬ) =====
+function saveDisciplinesFromDOM() {
+    const disciplineDivs = document.querySelectorAll('.discipline');
+    const newDisciplines = [];
+    
+    disciplineDivs.forEach(div => {
+        const nameInput = div.querySelector('.disc-name');
+        const levelInput = div.querySelector('.disc-level');
+        
+        if (nameInput && nameInput.value.trim() !== '') {
+            newDisciplines.push({
+                name: nameInput.value.trim(),
+                level: parseInt(levelInput.value) || 0
+            });
+        }
+    });
+    
+    character.disciplines = newDisciplines;
 }
 
 // ===== ФОТО =====
@@ -311,71 +328,105 @@ function handlePhotoUpload(e) {
 
 // ===== ДИСЦИПЛИНЫ =====
 function renderDisciplines() {
-    const container = document.querySelector('.discipline-container');
+    const container = document.getElementById('disciplineContainer');
     if (!container) return;
     container.innerHTML = '';
+    
     character.disciplines.forEach((disc, index) => {
         const div = document.createElement('div');
         div.className = 'discipline';
+        const uniqueId = 'disc-' + Date.now() + '-' + index + '-' + Math.random().toString(36).substr(2, 5);
+        div.dataset.uniqueId = uniqueId;
+        
         div.innerHTML = `
-            <input type="text" placeholder="Название" value="${disc.name}" data-discipline-name="${index}">
-            <input type="number" min="0" max="5" placeholder="Ур." value="${disc.level}" data-discipline-level="${index}">
-            <button data-discipline-remove="${index}">✕</button>
+            <input type="text" placeholder="Название" value="${disc.name || ''}" class="disc-name" data-unique-id="${uniqueId}">
+            <input type="number" min="0" max="5" placeholder="Ур." value="${disc.level || 0}" class="disc-level" data-unique-id="${uniqueId}">
+            <button class="discipline-remove-btn" data-unique-id="${uniqueId}">✕</button>
         `;
         container.appendChild(div);
     });
+    
     attachDisciplineListeners();
 }
 
-function saveDisciplines() {
-    const inputs = document.querySelectorAll('[data-discipline-name]');
-    const newDisciplines = [];
-    inputs.forEach(input => {
-        const index = parseInt(input.getAttribute('data-discipline-name'));
-        const levelInput = document.querySelector(`[data-discipline-level="${index}"]`);
-        if (input.value.trim() !== '') {
-            newDisciplines.push({
-                name: input.value.trim(),
-                level: parseInt(levelInput.value) || 0
-            });
-        }
-    });
-    character.disciplines = newDisciplines;
-}
-
 function attachDisciplineListeners() {
-    document.querySelectorAll('[data-discipline-name]').forEach(input => {
+    document.querySelectorAll('.disc-name, .disc-level').forEach(input => {
         input.removeEventListener('input', handleDisciplineChange);
         input.addEventListener('input', handleDisciplineChange);
     });
-    document.querySelectorAll('[data-discipline-level]').forEach(input => {
-        input.removeEventListener('input', handleDisciplineChange);
-        input.addEventListener('input', handleDisciplineChange);
-    });
-    document.querySelectorAll('[data-discipline-remove]').forEach(button => {
+    
+    document.querySelectorAll('.discipline-remove-btn').forEach(button => {
         button.removeEventListener('click', handleDisciplineRemove);
         button.addEventListener('click', handleDisciplineRemove);
     });
 }
 
-function handleDisciplineChange() {
-    saveDisciplines();
+function handleDisciplineChange(e) {
+    const input = e.target;
+    const uniqueId = input.dataset.uniqueId;
+    if (!uniqueId) return;
+    
+    const div = input.closest('.discipline');
+    if (!div) return;
+    
+    // Находим индекс в DOM
+    const allDivs = document.querySelectorAll('.discipline');
+    let index = -1;
+    allDivs.forEach((d, i) => {
+        if (d.dataset.uniqueId === uniqueId) {
+            index = i;
+        }
+    });
+    
+    if (index === -1 || index >= character.disciplines.length) return;
+    
+    if (input.classList.contains('disc-name')) {
+        character.disciplines[index].name = input.value;
+    } else if (input.classList.contains('disc-level')) {
+        character.disciplines[index].level = parseInt(input.value) || 0;
+    }
 }
 
 function handleDisciplineRemove(e) {
-    const index = parseInt(e.target.getAttribute('data-discipline-remove'));
+    const button = e.target;
+    const uniqueId = button.dataset.uniqueId;
+    if (!uniqueId) return;
+    
+    // Находим индекс в DOM
+    const allDivs = document.querySelectorAll('.discipline');
+    let index = -1;
+    allDivs.forEach((div, i) => {
+        if (div.dataset.uniqueId === uniqueId) {
+            index = i;
+        }
+    });
+    
+    if (index === -1) return;
+    
+    // Удаляем из массива
     character.disciplines.splice(index, 1);
+    
+    // Перерисовываем
     renderDisciplines();
+    
+    // Сохраняем в localStorage
+    localStorage.setItem('survivalCompany', JSON.stringify(character));
 }
 
 function addDiscipline() {
-    character.disciplines.push({ name: '', level: 0 });
+    character.disciplines.push({
+        name: '',
+        level: 0
+    });
     renderDisciplines();
 }
 
 // ===== СОХРАНЕНИЕ В localStorage =====
 function saveToLocalStorage() {
+    // Сохраняем все поля
     saveUIToCharacter();
+    // Сохраняем дисциплины из DOM
+    saveDisciplinesFromDOM();
     localStorage.setItem('survivalCompany', JSON.stringify(character));
     alert('💾 Персонаж сохранен!');
 }
@@ -398,7 +449,6 @@ function loadFromLocalStorage() {
 document.addEventListener('DOMContentLoaded', function() {
     loadFromLocalStorage();
 
-    // Класс → обновление подклассов
     document.getElementById('classSelect')?.addEventListener('change', function() {
         const selected = this.value;
         updateSubclasses(selected);
@@ -409,30 +459,23 @@ document.addEventListener('DOMContentLoaded', function() {
         saveUIToCharacter();
     });
 
-    // Подкласс
     document.getElementById('subclassSelect')?.addEventListener('change', function() {
         character.subclass = this.value;
         saveUIToCharacter();
     });
 
-    // Мультикласс
     document.getElementById('multiclassSelect')?.addEventListener('change', function() {
         character.multiclass = this.value;
         saveUIToCharacter();
     });
 
-    // Кнопка сохранения
     document.getElementById('saveBtn')?.addEventListener('click', saveToLocalStorage);
-    
-    // Кнопка добавления дисциплины
     document.getElementById('addDisciplineBtn')?.addEventListener('click', addDiscipline);
-
-    // Загрузка фото
     document.getElementById('photoInput')?.addEventListener('change', handlePhotoUpload);
 
-    // Экспорт
     document.getElementById('exportBtn')?.addEventListener('click', function() {
         saveUIToCharacter();
+        saveDisciplinesFromDOM();
         const dataStr = JSON.stringify(character, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -443,7 +486,6 @@ document.addEventListener('DOMContentLoaded', function() {
         URL.revokeObjectURL(url);
     });
 
-    // Импорт
     document.getElementById('importBtn')?.addEventListener('click', function() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -467,8 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
         input.click();
     });
 
-    // Автосохранение при изменении полей
-    document.querySelectorAll('input, select, textarea').forEach(function(element) {
+    document.querySelectorAll('input:not(.disc-name):not(.disc-level), select, textarea').forEach(function(element) {
         element.addEventListener('input', function() { saveUIToCharacter(); });
         element.addEventListener('change', function() { saveUIToCharacter(); });
     });
